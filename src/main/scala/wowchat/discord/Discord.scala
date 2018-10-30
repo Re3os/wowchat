@@ -5,7 +5,7 @@ import wowchat.common._
 import com.typesafe.scalalogging.StrictLogging
 import com.vdurmont.emoji.EmojiParser
 import net.dv8tion.jda.core.JDA.Status
-import net.dv8tion.jda.core.entities.{ChannelType, Game}
+import net.dv8tion.jda.core.entities.{ChannelType, Game, TextChannel}
 import net.dv8tion.jda.core.entities.Game.GameType
 import net.dv8tion.jda.core.events.StatusChangeEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -17,6 +17,8 @@ import scala.collection.JavaConverters._
 
 class Discord(discordConnectionCallback: CommonConnectionCallback) extends ListenerAdapter
   with GamePackets with StrictLogging {
+
+  var announcementsChannel: TextChannel = _
 
   private val jda = new JDABuilder(AccountType.BOT)
     .setToken(Global.config.discord.token)
@@ -102,6 +104,9 @@ class Discord(discordConnectionCallback: CommonConnectionCallback) extends Liste
         // to use the previous connection's channel references. I guess need to refill these maps on discord reconnection
         Global.discordToWow.clear
         Global.wowToDiscord.clear
+
+        announcementsChannel = event.getEntity.getTextChannels.asScala
+          .filter(_.getName.equalsIgnoreCase("announcements")).head
 
         // getNext seq of needed channels from config
         val configChannels = Global.config.channels.map(channelConfig => {

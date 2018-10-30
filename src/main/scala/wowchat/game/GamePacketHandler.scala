@@ -187,6 +187,9 @@ class GamePacketHandler(realmId: Int, realmName: String, sessionKey: Array[Byte]
   }
 
   override def handleResets: Option[String] = {
+    import java.time.{Duration, LocalDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+    import java.time.format.DateTimeFormatter
+
     val resetMap = Seq(
       "Zul'Gurub / Ruins of Ahn'Qiraj" -> (1538301600, 3),
       "Onyxia's Lair" -> (1538215200, 5),
@@ -452,7 +455,11 @@ class GamePacketHandler(realmId: Int, realmName: String, sessionKey: Array[Byte]
         .replace("%user", message)
         .replace("%message", message)
 
-      Global.discord.sendGuildNotification(formatted)
+      if (event == GuildEvents.GE_MOTD) {
+        Global.discord.announcementsChannel.sendMessage(formatted).queue()
+      } else {
+        Global.discord.sendGuildNotification(formatted)
+      }
     }
 
     updateGuildRoster
