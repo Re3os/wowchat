@@ -106,7 +106,7 @@ class Discord(discordConnectionCallback: CommonConnectionCallback) extends Liste
         Global.wowToDiscord.clear
 
         announcementsChannel = event.getEntity.getTextChannels.asScala
-          .filter(_.getName.equalsIgnoreCase("announcements")).head
+          .filter(_.getIdLong == 499976592198467584L).head
 
         // getNext seq of needed channels from config
         val configChannels = Global.config.channels.map(channelConfig => {
